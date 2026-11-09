@@ -3,7 +3,7 @@
 ## 只需重新搭建环境
 
 1. 按 README 安装 Git、Python、PowerShell、Docker；Mac 按 Intel / Apple Silicon 选择安装包。
-2. 登录自己的 GitHub 账号，克隆私有仓库。
+2. 克隆公开仓库 `https://github.com/HuWillis/dev-infra.git`，下载代码无需登录 GitHub。
 3. 启动 Docker，再双击 `start.cmd`（Windows）或 `start.command`（Mac）。
 4. 在操作台选择当前项目所需的服务。新的 `.env` 会生成新密码，业务项目也要更新连接配置。
 

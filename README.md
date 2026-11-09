@@ -1,8 +1,34 @@
-# 全栈开发本地环境
+# dev-infra · 本地开发操作台
 
-供个人 Java 全栈项目按需使用的 Docker 中间件环境，带独立浏览器操作台。点击启动、停止、查看日志、复制端口/链接/账号密码；关闭聊天窗口不影响使用。
+面向 Java 全栈与微服务项目的本地 Docker 开发环境。用浏览器按需启动中间件、查看状态和日志、复制端口与账号密码；日常使用只需在操作台点击，不依赖聊天窗口。
 
-包含 19 种中间件：MySQL、Redis、RabbitMQ、Nacos、MinIO、Elasticsearch、MongoDB、RocketMQ、Nginx、XXL-JOB、Kibana、RocketMQ Dashboard、PostgreSQL、Mailpit、Prometheus、Grafana、Sentinel、Seata、Kafka。XXL-JOB 复用同一个 MySQL 容器，使用独立数据库与账号。
+**快速导航：** [准备环境](#新电脑准备) · [启动操作台](#第一次启动) · [服务使用说明](SERVICE-GUIDE.md) · [换电脑迁移](docs/MIGRATION.md) · [下载问题排查](docs/NETWORK.md)
+
+## 操作台能做什么
+
+- **按需启停**：单独启动一个服务，或选择项目组合批量启动；自动带起所需依赖。
+- **查看连接信息**：本地端口、网页入口、用户名、密码、连接串和项目接入示例集中展示。
+- **查看运行情况**：服务状态、操作记录和容器日志直接在页面查看。
+- **保留本机数据**：日常停止服务保留数据卷；密码保存在本机，不提交到仓库。
+- **跨电脑复用配置**：提供 Windows、Mac 启动入口及数据迁移说明。
+
+## 包含哪些服务
+
+共 19 种服务，按项目需要选择使用：
+
+| 用途 | 服务 |
+| --- | --- |
+| 关系型与文档数据库 | MySQL、PostgreSQL、MongoDB |
+| 缓存 | Redis |
+| 消息队列与事件流 | RabbitMQ、RocketMQ、Kafka |
+| 注册配置、限流与分布式事务 | Nacos、Sentinel、Seata |
+| 搜索与查询管理 | Elasticsearch、Kibana |
+| 对象存储与网页代理 | MinIO、Nginx |
+| 任务调度 | XXL-JOB |
+| 邮件测试与消息管理 | Mailpit、RocketMQ Dashboard |
+| 指标采集与看板 | Prometheus、Grafana |
+
+XXL-JOB 复用同一个 MySQL 容器，使用独立数据库与账号，不额外部署 MySQL。
 
 ## 新电脑准备
 
@@ -17,7 +43,7 @@
 
 ## 第一次启动
 
-先用自己的 GitHub 账号登录 Git，再克隆这个私有仓库：
+仓库已公开，无需登录 GitHub 即可下载。安装好上述依赖并启动 Docker 后，克隆仓库：
 
 ```sh
 git clone https://github.com/HuWillis/dev-infra.git
@@ -37,11 +63,11 @@ chmod +x start.command
 
 中间件首次使用才下载镜像。MinIO 从固定官方源码构建，Sentinel 下载官方 JAR 构建，首次启动较慢；需要能访问 GitHub、Docker 仓库和 Go 模块仓库。8 GB Docker 内存适合按项目启用，不建议一次开齐所有服务。
 
-## Intel 与 Apple Silicon
+## Mac 芯片兼容说明
 
 默认 `.env` 为 `DOCKER_PLATFORM=linux/amd64`。Intel/AMD 电脑直接运行；Apple Silicon 使用容器运行时的 AMD64 仿真支持，以兼容这套固定版本中的镜像。仿真会增加启动时间和内存开销，首次启动超时可用 `pwsh -File ./infra.ps1 Up -Stack base -WaitTimeout 600`。
 
-这不是“19 个镜像全部原生 ARM”的承诺。确需原生 ARM 时，先逐个验证所需镜像的 ARM64 manifest，再改平台或单独覆盖服务；不要直接把整套平台改成 ARM64。Windows 的服务运行验证已完成；Mac 的脚本检查由 CI 覆盖，实际 Docker Desktop、芯片和业务 SDK 联调仍需在目标 Mac 上验证。
+当前默认采用 AMD64 兼容方案。确需原生 ARM 时，先逐个确认所需镜像支持 ARM64，再调整对应服务的平台配置。Windows 已实测部分服务的启动、认证和健康状态；Windows、Mac、Linux 的脚本与控制台测试均已通过自动检查。完整服务及业务项目接入仍需在目标电脑上验证。
 
 ## 日常使用与迁移
 
@@ -61,9 +87,9 @@ pwsh -File ./infra.ps1 Doctor
 pwsh -File ./infra.ps1 Down
 ```
 
-## 验证
+## 自动检查与验证范围
 
-GitHub Actions 对 Windows、macOS、Linux 执行脚本与控制台测试，并在 Linux 验证 Compose、构建 MinIO。工作流不启动整套中间件，也不代表全部服务都在 Mac 上通过运行验证。
+[自动检查记录](https://github.com/HuWillis/dev-infra/actions)覆盖 Windows、macOS、Linux 上的脚本与控制台测试，并在 Linux 验证容器编排配置、构建 MinIO。自动检查不启动整套中间件；Mac 上的实际服务运行情况仍需单独验证。
 
 ```sh
 python -m unittest discover -s console -p 'test_*.py' -v

@@ -65,7 +65,7 @@ try {
         Must-Fail { Assert-PortsAvailable @{REDIS_PORT = $port} @('redis') } 'Another service must not claim an owned port.'
     } finally { $listener.Stop() }
     $shellName = if ($PSVersionTable.PSEdition -eq 'Core') { 'pwsh' } else { 'powershell.exe' }
-    $script:DockerExe = (Get-Command $shellName -CommandType Application).Source
+    $script:DockerExe = (Get-Command $shellName -CommandType Application | Select-Object -First 1).Source
     $originalPath = $env:PATH
     Must-Fail { Invoke-Docker @('-NoProfile','-Command','exit 7') } 'Native command failure must throw.'
     Assert ($env:PATH -eq $originalPath) 'Native failure must restore PATH.'

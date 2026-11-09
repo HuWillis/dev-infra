@@ -1,0 +1,39 @@
+name: Validate portable environment
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  scripts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: PowerShell checks without Docker
+        shell: pwsh
+        run: |
+          foreach ($test in Get-ChildItem tests/*-check.ps1) {
+            & pwsh -NoProfile -File $test.FullName
+            if ($LASTEXITCODE -ne 0) { throw "Failed: $($test.Name)" }
+          }
+      - name: Console and launcher checks
+        run: python -m unittest discover -s console -p "test_*.py" -v
+  compose-and-minio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize temporary credentials
+        shell: pwsh
+        run: ./infra.ps1 Init
+      - name: Validate Compose
+        run: docker compose --profile '*' config --quiet
+      - name: Build MinIO from pinned upstream source
+        run: docker build -t dev-infra/minio:ci minio
+      - name: Check MinIO version
+        run: docker run --rm dev-infra/minio:ci --version

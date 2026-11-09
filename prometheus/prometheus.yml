@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Add project endpoints to targets/spring.json after enabling Actuator + Micrometer.
+  - job_name: spring-boot
+    metrics_path: /actuator/prometheus
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/spring.json']
+        refresh_interval: 15s

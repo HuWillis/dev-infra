@@ -1,0 +1,16 @@
+{
+  "id": null,
+  "uid": "dev-infra-overview",
+  "title": "本地服务监控",
+  "tags": ["local", "development"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": {"from": "now-30m", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "stat", "title": "采集目标在线状态（1 = 在线）", "datasource": {"type": "prometheus", "uid": "dev-prometheus"}, "gridPos": {"h": 6, "w": 24, "x": 0, "y": 0}, "targets": [{"expr": "up", "legendFormat": "{{job}} · {{instance}}", "refId": "A"}], "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "value"}},
+    {"id": 2, "type": "timeseries", "title": "JVM 使用内存（项目启用指标后显示）", "datasource": {"type": "prometheus", "uid": "dev-prometheus"}, "gridPos": {"h": 9, "w": 12, "x": 0, "y": 6}, "targets": [{"expr": "sum by(instance, area) (jvm_memory_used_bytes)", "legendFormat": "{{instance}} {{area}}", "refId": "A"}], "fieldConfig": {"defaults": {"unit": "bytes"}, "overrides": []}},
+    {"id": 3, "type": "timeseries", "title": "HTTP 请求速率（项目启用指标后显示）", "datasource": {"type": "prometheus", "uid": "dev-prometheus"}, "gridPos": {"h": 9, "w": 12, "x": 12, "y": 6}, "targets": [{"expr": "sum by(instance) (rate(http_server_requests_seconds_count[5m]))", "legendFormat": "{{instance}}", "refId": "A"}], "fieldConfig": {"defaults": {"unit": "reqps"}, "overrides": []}}
+  ]
+}

@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+# shortcut: Rancher 1.24 uses a curl-rejected ping URL; remove after upgrading past upstream #10740.
+sed -i 's#http://\./_ping#http://localhost/_ping#g' /etc/init.d/docker

@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+# Public Docker Hub mirrors: domestic cache first, Google cache as fallback.
+# Preserve Rancher's generated settings and any user-supplied mirror list.
+config=/etc/docker/daemon.json
+tmp=$(mktemp /etc/docker/dev-infra-registry.XXXXXX)
+trap 'rm -f "$tmp"' EXIT
+if grep -q '"registry-mirrors"[[:space:]]*:' "$config"; then
+  cp "$config" "$tmp"
+else
+  awk 'NR == 1 { sub(/^[[:space:]]*\{/, "{\n  \"registry-mirrors\": [\"https://docker.m.daocloud.io\", \"https://mirror.gcr.io\"],") } { print }' "$config" > "$tmp"
+fi
+# Keep existing proxy exclusions and bypass the proxy for the domestic mirror.
+sed -i '/"no-proxy"/ { /daocloud/!s/\("no-proxy"[[:space:]]*:[[:space:]]*"[^"]*\)"/\1,.daocloud.io"/; }' "$tmp"
+dockerd --validate --config-file "$tmp"
+cat "$tmp" > "$config"

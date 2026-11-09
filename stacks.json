@@ -1,0 +1,60 @@
+{
+  "base": [
+    "mysql",
+    "redis"
+  ],
+  "search": [
+    "mysql",
+    "redis",
+    "elasticsearch"
+  ],
+  "mongo": [
+    "mongodb",
+    "redis"
+  ],
+  "microservice": [
+    "mysql",
+    "redis",
+    "nacos",
+    "rocketmq"
+  ],
+  "storage": [
+    "mysql",
+    "redis",
+    "minio"
+  ],
+  "java-web": [
+    "mysql",
+    "redis",
+    "nginx",
+    "mailpit"
+  ],
+  "jobs": [
+    "mysql",
+    "xxl-job"
+  ],
+  "search-console": [
+    "elasticsearch",
+    "kibana"
+  ],
+  "rocketmq-console": [
+    "rocketmq",
+    "rocketmq-dashboard"
+  ],
+  "observability": [
+    "prometheus",
+    "grafana"
+  ],
+  "microservice-governance": [
+    "nacos",
+    "sentinel",
+    "seata"
+  ],
+  "streaming": [
+    "kafka"
+  ],
+  "postgres-app": [
+    "postgresql",
+    "redis"
+  ]
+}

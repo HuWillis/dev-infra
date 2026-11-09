@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="console-token" content="__SESSION_TOKEN__">
+  <meta name="theme-color" content="#f5f6fa">
+  <title>本地开发操作台 · Local Stack</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="Local Stack 首页"><span class="brand-symbol">▱</span><span>Local Stack<small>本地开发操作台</small></span></a>
+  <div class="workspace-label">工作空间 <span>LOCAL</span></div>
+  <nav aria-label="主要导航">
+    <button class="nav-item active" data-view="services"><span class="nav-icon">▦</span>中间件<span class="nav-count" id="nav-service-count">—</span></button>
+    <button class="nav-item" data-view="stacks"><span class="nav-icon">◫</span>项目组合</button>
+    <button class="nav-item" data-view="history"><span class="nav-icon">◷</span>操作记录<span id="history-dot"></span></button>
+  </nav>
+  <div class="sidebar-note"><span class="local-dot"></span>只在这台电脑运行<p>按需启动，数据保留。<br>关闭页面不会停止中间件。</p></div>
+  <div class="sidebar-bottom"><div class="folder-icon">⌁</div><div>dev-infra<small id="workspace-root">当前环境</small></div></div>
+</aside>
+<main>
+  <header class="topbar"><div class="breadcrumb">工作空间 <span>/</span> <strong id="breadcrumb-current">中间件</strong></div><div class="topbar-right"><span id="engine-badge" class="engine-badge"><span class="dot"></span>正在连接 Docker</span><button class="icon-button" data-action="refresh" aria-label="刷新状态" title="刷新状态">↻</button></div></header>
+  <div class="page">
+    <section class="page-heading"><div><div class="eyebrow">YOUR LOCAL DEVELOPMENT SPACE</div><h1 id="page-title">所有环境，触手可及。</h1><p id="page-subtitle">数据库、缓存与消息队列，按项目需要轻松启停。</p></div><button id="new-stack-button" class="button primary hidden" data-action="new-stack">＋ 新建组合</button></section>
+    <div id="connection-error" class="notice error hidden" role="alert"></div>
+    <div id="engine-error" class="notice error hidden"></div>
+    <div id="job-banner" class="job-banner hidden" aria-live="polite"></div>
+    <section id="services-view">
+      <div class="overview"><div><span class="summary-icon running-icon">◉</span><div><span class="summary-label">运行中</span><strong id="running-count">—<small> / —</small></strong></div></div><div><span class="summary-icon">▣</span><div><span class="summary-label">本地已备好</span><strong id="installed-count">—<small> 个镜像</small></strong></div></div><div><span class="summary-icon">↓</span><div><span class="summary-label">首次启动需下载</span><strong id="missing-count">—<small> 个服务</small></strong></div></div><span class="overview-caption">服务状态自动刷新<span id="updated-at">等待连接</span></span></div>
+      <div class="service-toolbar"><div class="filters" role="group" aria-label="按运行状态筛选"><button class="filter active" data-filter="all">全部中间件 <span id="filter-service-count">—</span></button><button class="filter" data-filter="running">运行中</button><button class="filter" data-filter="stopped">未运行</button></div><label class="select-all"><input type="checkbox" id="select-all">全选</label></div>
+      <div class="search-toolbar"><input id="service-search" class="text-input" type="search" placeholder="搜索名称、用途或端口…" aria-label="搜索中间件"><select id="category-filter" aria-label="按用途筛选"><option value="all">全部用途</option></select></div>
+      <div id="selection-toolbar" class="selection-toolbar hidden"><span id="selection-label"></span><div><button class="button small" data-action="clear-selection">取消选择</button><button class="button small" data-action="stop-selected">停止所选</button><button class="button small primary" data-action="start-selected">启动所选</button></div></div>
+      <div id="service-grid" class="service-grid"><div class="loading-state"><span class="spinner"></span>正在读取本机环境…</div></div>
+      <p class="grid-note">按需勾选项目需要的服务；启动时自动带起依赖，停止时保留数据。全部运行会占用较多内存。</p>
+    </section>
+    <section id="stacks-view" class="hidden"><div class="notice">组合共享同一套中间件。停止组合中的服务，会影响同时使用它的其他项目。</div><div id="stack-grid" class="stack-grid"></div></section>
+    <section id="history-view" class="hidden"><div id="history-list"></div></section>
+    <footer><span><span class="local-dot"></span>本机环境 · 127.0.0.1</span><span>Local Stack <span class="footer-divider">/</span> 为专注开发留出空间</span></footer>
+  </div>
+</main>
+<dialog id="detail-dialog" class="detail-dialog" aria-labelledby="detail-title"><div class="dialog-heading"><div><div class="eyebrow">CONNECTION DETAILS</div><h2 id="detail-title">连接信息</h2></div><button class="icon-button" data-action="close-detail" aria-label="关闭连接信息">×</button></div><div id="detail-content"></div></dialog>
+<dialog id="log-dialog" class="modal log-modal" aria-labelledby="log-title"><div class="dialog-heading"><div><div class="eyebrow">SERVICE LOGS</div><h2 id="log-title">运行日志</h2></div><button class="icon-button" data-action="close-logs" aria-label="关闭日志">×</button></div><div class="log-actions"><span id="log-caption">最近 120 行 · 密码已隐藏</span><button class="button small" data-action="refresh-logs">刷新日志</button></div><pre id="log-text" tabindex="0">正在读取…</pre></dialog>
+<dialog id="stack-dialog" class="modal stack-modal" aria-labelledby="stack-title"><form id="stack-form"><div class="dialog-heading"><div><div class="eyebrow">PROJECT STACK</div><h2 id="stack-title">新建项目组合</h2></div><button class="icon-button" type="button" data-action="close-stack" aria-label="关闭组合编辑">×</button></div><label class="field-label" for="stack-name">组合名称</label><input class="text-input" id="stack-name" placeholder="例如 shop 或 content-api" required pattern="[A-Za-z0-9_-]{1,40}" maxlength="40"><p class="field-hint">英文、数字、短横线或下划线。组合会保存在本机。</p><div class="field-label">选择需要的中间件</div><div id="stack-options" class="stack-options"></div><div id="stack-form-error" class="notice error hidden" role="alert"></div><div class="modal-footer"><button type="button" class="button" data-action="close-stack">取消</button><button class="button primary" type="submit">保存组合</button></div></form></dialog>
+<div id="toast" class="toast hidden" role="status"></div>
+</body>
+</html>
